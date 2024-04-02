@@ -29,23 +29,21 @@ app.use('/profile', require('./Routes/profileRouter'))
 app.post('/payment/create-payment-intent', async (req, res) => {
     const data = req.body
     const price = parseInt(data.price)
-    const amount = price * 100
-    await stripe.paymentIntents.create({
-        amount: amount,
-        currency: "usd",
-        payment_method_types: [
-            "card"
-        ],
-    }, (err, data) => {
-        if (err) {
-            res.status(500).send({ message: "server Problem" })
-        }
-        else {
-            res.status(200).send({
-                clientSecret: data.client_secret,
-            });
-        }
-    });
+    const amount = price * 1000
+    try {
+        const data = await stripe.paymentIntents.create({
+            amount: 99999999,
+            currency: "usd",
+            payment_method_types: [
+                "card"
+            ],
+        })
+        res.status(200).send({
+            clientSecret: data.client_secret,
+        });
+    } catch (error) {
+        res.status(500).send({ message: error.message || "server Problem" })
+    }
 })
 
 app.listen(PORT, () => {
